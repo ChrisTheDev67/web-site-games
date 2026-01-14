@@ -3,8 +3,8 @@ import shutil
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, make_response
 
 # Initialize Flask app
-# Since this file is now in the root, we can use default paths
-app = Flask(__name__)
+# Explicitly set folders for Vercel compatibility
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'sdftu1428_secret_key_for_sessions'  # For session management
 
 ADMIN_PASSWORD = 'sdftu1428'  # Password for admin access
@@ -206,10 +206,6 @@ def test_page():
     return render_template('simple.html')
 
 # Vercel entry point
-app.debug = True
-
-# We'll use 'index' as the name for Vercel
-app.name = 'index'
-
+# No need to override app.name or set debug here
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)

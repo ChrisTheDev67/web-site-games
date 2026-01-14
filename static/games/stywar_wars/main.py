@@ -10,12 +10,6 @@ SCREEN_TITLE = "PYPCIKI PROTIV ABOBYCOB"
 LASER_SPEED = 5
 ENEMY_SPEED = 1
 ENEMY_DISTANCE = 50
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_TITLE = "PYPCIKI PROTIV ABOBYCOB"
-LASER_SPEED = 5
-ENEMY_SPEED = 1
-ENEMY_DISTANCE = 50
 
 # Global screen variable (will be initialized in main)
 screen = None
@@ -100,20 +94,30 @@ async def main():
     import pygame  # Import inside to ensure everything is in this scope
     global screen
     
-    # Target the HTML canvas specifically for browser
-    os.environ["SDL_WINDOWID"] = "canvas"
-    
+    print("Main Task Started")
     # Initialize Pygame inside async main
-    pygame.init()
     try:
+        print("Initializing Pygame...")
+        pygame.init()
+        print("Pygame Init Successful")
+        
+        print("Initializing Mixer...")
         pygame.mixer.pre_init(44100, -16, 2, 1024)
         pygame.mixer.init()
+        print("Mixer Init Successful")
     except Exception as e:
-        print(f"Mixer init error: {e}")
+        print(f"Init Warning: {e}")
 
     # Set up the screen
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption(SCREEN_TITLE)
+    print(f"Setting Display Mode: {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
+    try:
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        print("Display Mode Set successfully")
+        pygame.display.set_caption(SCREEN_TITLE)
+    except Exception as e:
+        print(f"Display Error: {e}")
+        # Last resort fallback
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
     
     # Load Backgrounds
     print("Loading assets inside main...")
