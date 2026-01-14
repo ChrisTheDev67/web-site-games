@@ -11,13 +11,11 @@ ADMIN_PASSWORD = 'sdftu1428'  # Password for admin access
 
 GAMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'games')
 
-# Ensure games directory exists
-# Ensure games directory exists (Only if we can write, otherwise assume it exists or is read-only)
+# Ensure games directory exists (Only check, do not create on Vercel)
 if not os.path.exists(GAMES_DIR):
-    try:
-        os.makedirs(GAMES_DIR)
-    except OSError:
-        pass # Probably Read-only filesystem on Vercel
+    # On local dev we might want to create it, but on Vercel this is read-only.
+    # We assume 'static/games' exists in the repo.
+    pass
 
 @app.route('/')
 def home():
@@ -95,109 +93,8 @@ def game_config(game_id):
     }
     return jsonify(config)
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
-    if request.method == 'POST':
-        # Check if this is password submission
-        password = request.form.get('password')
-        if password:
-            if password == ADMIN_PASSWORD:
-                session['admin_authenticated'] = True
-                return redirect(url_for('admin'))
-            else:
-                flash('Incorrect password!', 'error')
-                return render_template('admin.html', show_password_form=True)
-        
-        # Check authentication for file upload
-        if not session.get('admin_authenticated'):
-            return redirect(url_for('admin'))
-        
-        # Handle folder upload
-        files = request.files.getlist('game_file')
-        game_name = request.form.get('game_name', '').strip()
-        
-        if not files or not game_name:
-            flash('No files or name provided', 'error')
-            return redirect(url_for('admin'))
-
-        # Sanitize game_name
-        safe_name = "".join([c for c in game_name if c.isalnum() or c in (' ', '_', '-')]).strip().replace(' ', '_').lower()
-        target_dir = os.path.join(GAMES_DIR, safe_name)
-        
-        try:
-            # Remove existing if overwriting
-            if os.path.exists(target_dir):
-                shutil.rmtree(target_dir)
-            os.makedirs(target_dir)
-
-            has_main_py = False
-
-            for file in files:
-                if not file.filename:
-                    continue
-                
-                original_path = file.filename
-                
-                if '/' in original_path:
-                    parts = original_path.split('/')
-                    if len(parts) > 1:
-                        relative_path = os.path.join(*parts[1:])
-                    else:
-                        relative_path = parts[0]
-                else:
-                    relative_path = original_path
-
-                save_path = os.path.join(target_dir, relative_path)
-                os.makedirs(os.path.dirname(save_path), exist_ok=True)
-                file.save(save_path)
-                
-                if os.path.basename(save_path) == 'main.py':
-                    has_main_py = True
-                
-            flash(f'Game "{game_name}" uploaded successfully!', 'success')
-        except OSError as e:
-            flash(f'Error saving game: Read-only filesystem or permission error. ({str(e)})', 'error')
-            return redirect(url_for('admin'))
-            
-        return redirect(url_for('games'))
-
-    # Check if authenticated
-    if session.get('admin_authenticated'):
-        # Get list of games for deletion
-        games_list = []
-        if os.path.exists(GAMES_DIR):
-            for name in os.listdir(GAMES_DIR):
-                path = os.path.join(GAMES_DIR, name)
-                if os.path.isdir(path):
-                    games_list.append({'id': name, 'title': name.replace('_', ' ').title()})
-        return render_template('admin.html', authenticated=True, games=games_list)
-    else:
-        return render_template('admin.html', show_password_form=True)
-
-@app.route('/delete/<game_id>', methods=['POST'])
-def delete_game(game_id):
-    password = request.form.get('password')
-    
-    if password != ADMIN_PASSWORD:
-        flash('Incorrect password! Cannot delete game.', 'error')
-        return redirect(url_for('admin'))
-    
-    game_path = os.path.join(GAMES_DIR, game_id)
-    if os.path.exists(game_path):
-        try:
-            shutil.rmtree(game_path)
-            flash(f'Game "{game_id}" deleted successfully!', 'success')
-        except OSError as e:
-            flash(f'Error deleting game: Read-only filesystem. ({str(e)})', 'error')
-    else:
-        flash(f'Game "{game_id}" not found!', 'error')
-    
-    return redirect(url_for('admin'))
-
-@app.route('/logout')
-def logout():
-    session.pop('admin_authenticated', None)
-    return redirect(url_for('home'))
+# Admin/Upload routes removed for Vercel compatibility
+# The site now serves static pre-built games only.
 
 @app.route('/test')
 def test_page():
