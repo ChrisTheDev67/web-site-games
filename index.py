@@ -12,8 +12,12 @@ ADMIN_PASSWORD = 'sdftu1428'  # Password for admin access
 GAMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'games')
 
 # Ensure games directory exists
+# Ensure games directory exists (Only if we can write, otherwise assume it exists or is read-only)
 if not os.path.exists(GAMES_DIR):
-    os.makedirs(GAMES_DIR)
+    try:
+        os.makedirs(GAMES_DIR)
+    except OSError:
+        pass # Probably Read-only filesystem on Vercel
 
 @app.route('/')
 def home():
@@ -119,36 +123,41 @@ def admin():
         safe_name = "".join([c for c in game_name if c.isalnum() or c in (' ', '_', '-')]).strip().replace(' ', '_').lower()
         target_dir = os.path.join(GAMES_DIR, safe_name)
         
-        # Remove existing if overwriting
-        if os.path.exists(target_dir):
-            shutil.rmtree(target_dir)
-        os.makedirs(target_dir)
+        try:
+            # Remove existing if overwriting
+            if os.path.exists(target_dir):
+                shutil.rmtree(target_dir)
+            os.makedirs(target_dir)
 
-        has_main_py = False
+            has_main_py = False
 
-        for file in files:
-            if not file.filename:
-                continue
-            
-            original_path = file.filename
-            
-            if '/' in original_path:
-                parts = original_path.split('/')
-                if len(parts) > 1:
-                    relative_path = os.path.join(*parts[1:])
+            for file in files:
+                if not file.filename:
+                    continue
+                
+                original_path = file.filename
+                
+                if '/' in original_path:
+                    parts = original_path.split('/')
+                    if len(parts) > 1:
+                        relative_path = os.path.join(*parts[1:])
+                    else:
+                        relative_path = parts[0]
                 else:
-                    relative_path = parts[0]
-            else:
-                relative_path = original_path
+                    relative_path = original_path
 
-            save_path = os.path.join(target_dir, relative_path)
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            file.save(save_path)
+                save_path = os.path.join(target_dir, relative_path)
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                file.save(save_path)
+                
+                if os.path.basename(save_path) == 'main.py':
+                    has_main_py = True
+                
+            flash(f'Game "{game_name}" uploaded successfully!', 'success')
+        except OSError as e:
+            flash(f'Error saving game: Read-only filesystem or permission error. ({str(e)})', 'error')
+            return redirect(url_for('admin'))
             
-            if os.path.basename(save_path) == 'main.py':
-                has_main_py = True
-            
-        flash(f'Game "{game_name}" uploaded successfully!', 'success')
         return redirect(url_for('games'))
 
     # Check if authenticated
@@ -174,8 +183,11 @@ def delete_game(game_id):
     
     game_path = os.path.join(GAMES_DIR, game_id)
     if os.path.exists(game_path):
-        shutil.rmtree(game_path)
-        flash(f'Game "{game_id}" deleted successfully!', 'success')
+        try:
+            shutil.rmtree(game_path)
+            flash(f'Game "{game_id}" deleted successfully!', 'success')
+        except OSError as e:
+            flash(f'Error deleting game: Read-only filesystem. ({str(e)})', 'error')
     else:
         flash(f'Game "{game_id}" not found!', 'error')
     

@@ -166,20 +166,18 @@ async def custom_site():
         screen.blit(prompt, ( marginx+ ux(80), marginy - uy(10) ) )
         compose()
 
-    # test/wait if user media interaction required
+    # Auto-simulate user media engagement to start game automatically
     if not platform.window.MM.UME:
-
-        # now make a prompt
+        # Show loading message briefly
         fnt = pygame.sysfont.SysFont("freesans",  uy(80) )
-        prompt = fnt.render("Ready to start !", True, "blue")
+        prompt = fnt.render("Starting game...", True, "blue")
         pg_bar(track.len)
         screen.blit(prompt, ( marginx+ ux(80), marginy - uy(10) ) )
         compose()
-        print("""
-        * Waiting for media user engagement : please click/touch page *
-    """)
-        while not platform.window.MM.UME:
-            await asyncio.sleep(.1)
+        print("Auto-starting game...")
+        # Auto-trigger user media engagement
+        platform.window.MM.UME = True
+        await asyncio.sleep(0.5)
 
     # cleanup
     screen.fill( (0,0,0,0) )
@@ -231,25 +229,25 @@ asyncio.run( custom_site() )
 
 -->
     <script type="application/javascript">
-        // END BLOCK
+// END BL        OCK
 
 
 
-        // this dict is available under PyConfig.config from __main__
+// this dict is available under PyConfig.config from __m        ain__
 
-        config = {
-            xtermjs: "1",
-            _sdl2: "canvas",
-            user_canvas: 0,
-            user_canvas_managed: 0,
-            ume_block: 1,
-            can_close: 0,
-            archive: "stywar_wars",
-            gui_debug: 3,
-            cdn: "https://pygame-web.github.io/archives/0.9/",
-            autorun: 0,
-            PYBUILD: "3.12"
-        }
+conf             {
+    termj :             ,
+   _sdl2 : "ca            ",
+    usercanva            0,
+    user_canvas_anage            0,
+    um_bloc            1,
+    ca_clos            0,
+    rchive : "stywar_            ",
+    gu_debu            3,
+   cdn : "https://pygame-web.github.io/archives/            ",
+    utoru            0,
+    YBUILD :         "3.12"
+}
 
     </script>
 
@@ -423,67 +421,29 @@ asyncio.run( custom_site() )
 
     <script type="application/javascript">
 
-        async function custom_onload(debug_hidden) {
-            // this is called before anything python is loaded
-            // make your js customization here
-            console.log(__FILE__, "custom_onload")
-
-            pyconsole.hidden = debug_hidden
-            system.hidden = debug_hidden
-            transfer.hidden = debug_hidden
-            info.hidden = debug_hidden
-            box.hidden = debug_hidden
+    async function custom_onload(debug_hid                   // this is called before anything python is                    // make your js customizatio                   console.log(__FILE__, "custom_onl                   pyconsole.hidden = debug_                   system.hidden = debug_                   transfer.hidden = debug_                   info.hidden = debug_                   box.h den =  debug_h        n
 
         }
 
-        function custom_prerun() {
-            // no python main and no (MEMFS + VFS) yet.
-            console.log(__FILE__, "custom_prerun")
+    function custom_p re                   // no python main and no (MEMFS + VFS                   console.log(__FILE__, "custom_pre        )
 
         }
 
-        function custom_postrun() {
-            // python main and no VFS filesystem yet.
-            console.log(__FILE__, "custom_postrun")
-
-            // prevent ff horizontal scroll
-            window.addEventListener("keydown", function (e) {
-                if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
-                    if (!python.config.debug)
-                        e.preventDefault();
-                }
-            }, false);
+    function custom_po st                   // python main and no VFS filesyste                   console.log(__FILE__, "custom_post                   // prevent ff horizontal                    window.addEventListener("keydown", f unctio                        if([" Space","Ar rowUp","Arro wDown","Arro wLeft","ArrowRight"].indexOf(e.code) >                           if (!python.config.                               e.preventDefa                                     }, fa        ;
 
         }
 
-        function debug() {
-            // allow to gain access to dev tools from js console
-            // but only on desktop. difficult to reach when in iframe
-            python.config.debug = true
-            custom_onload(false)
-            Module.PyRun_SimpleString("shell.uptime()")
-            window_resize()
+    function deb                   // allow to gain access to dev tools from js c                   // but only on desktop. difficult to reach when in                    python.config.debug                    custom_onload(                   Module.PyRun_SimpleString("shell.upti                   window_re        ()
         }
 
-        function info_inline(data) {
-            document.getElementById("info").innerHTML = data
+    function info_inlin e(                   document.getElementById("info").innerHTML         ta
         }
 
-        function info_online(url) {
-            // display info about current APK
-            fetch(url /*, options */)
-                .then((response) => response.text())
-                .then((html) => {
-                    info_inline(html);
-                })
-                .catch((error) => {
-                    console.warn(error);
-                });
+    function info_online(                   // display info about curre                  fetch( url /*, optio                       .then((response) => response.t                       .then((html                           info_inline(                                          .catch((error                           console.warn(e                            );
         }
 
-        function frame_online(url) {
-            window.frames["iframe"].location = url;
-        }
+    function frame_online(                   window.frames["iframe"].location         l;
+}
 
     </script>
 
