@@ -95,9 +95,9 @@ async def main():
     
     print("Game Startup Sequence Initiated")
     
-    # CRITICAL: Target the HTML canvas element BEFORE pygame.init()
-    os.environ['SDL_WINDOWID'] = 'canvas'
-    os.environ['SDL_VIDEODRIVER'] = 'dummy'  # Use dummy driver first
+    # NOTE: Do NOT set SDL_WINDOWID or SDL_VIDEODRIVER
+    # pygame-ce in the browser uses Emscripten/SDL which automatically
+    # creates and manages the canvas element
     
     try:
         pygame.init()
@@ -114,16 +114,20 @@ async def main():
         # Yield to browser event loop before creating display
         await asyncio.sleep(0.1)
         
-        # Screen setup
+        # Screen setup - pygame-ce handles canvas creation automatically
         print(f"Opening window: {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(SCREEN_TITLE)
         print("Display ready")
+        
     except Exception as e:
         print(f"Critical Init Error: {e}")
         import traceback
         traceback.print_exc()
         return
+
+    # Yield again after display creation
+    await asyncio.sleep(0.1)
 
     # Load Backgrounds
     print("Loading textures...")
