@@ -106,35 +106,5 @@
         asyncio.ensure_future(start_game())
     </script>
 
-    set_status("Libraries installed. Starting Loader...")
-
-    set_status("Libraries installed. Starting Loader...")
-
-    # 2. Download all files
-    tasks = [fetch_and_save_file(f) for f in FILES]
-    await asyncio.gather(*tasks)
-    set_status("--- ALL ASSETS DOWNLOADED ---")
-
-    # 3. Check for main.py
-    if os.path.exists("main.py"):
-    set_status("Found main.py, executing...")
-
-    with open("main.py", "r") as f:
-    code = f.read()
-
-    globs = globals().copy()
-    globs['__name__'] = '__main__'
-    exec(code, globs)
-    set_status("Game Running")
-    else:
-    set_status("CRITICAL ERROR: main.py not found!")
-    js.alert("Error: main.py not found in game files.")
-    except Exception as e:
-    set_status(f"Global Error: {e}")
-    import traceback
-    traceback.print_exc()
-
-    asyncio.ensure_future(start_game())
-    </script>
 </div>
 {% endblock %}
