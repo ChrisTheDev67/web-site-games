@@ -44,7 +44,13 @@ def play(game_id):
     if not os.path.exists(game_path):
         return "Game not found", 404
     
-    # Check if pygbag build exists - redirect directly to static file
+    # 1. Native Web Game Support (index.html at root)
+    # This supports standard JS games (like Snake) or bundled web apps.
+    native_index = os.path.join(game_path, 'index.html')
+    if os.path.exists(native_index):
+        return redirect(f'/static/games/{game_id}/index.html')
+
+    # 2. Pygbag Support (index.html in build/web)
     pygbag_index = os.path.join(game_path, 'build', 'web', 'index.html')
     if os.path.exists(pygbag_index):
         # Redirect to the static file served directly by Vercel with cache busting
