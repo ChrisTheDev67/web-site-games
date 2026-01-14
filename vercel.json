@@ -13,5 +13,20 @@
             "src": "/(.*)",
             "dest": "index.py"
         }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)\\.apk",
+            "headers": [
+                {
+                    "key": "Content-Encoding",
+                    "value": "identity"
+                },
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
+        }
     ]
 }
