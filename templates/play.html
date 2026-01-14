@@ -79,6 +79,7 @@
                 await asyncio.gather(*tasks)
                 
                 set_status("Assets ready. Launching game...")
+                await asyncio.sleep(0.5)
                 
                 if os.path.exists("main.py"):
                     set_status("Running main.py...")

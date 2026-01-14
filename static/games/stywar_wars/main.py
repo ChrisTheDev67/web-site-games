@@ -3,12 +3,11 @@ import random
 import asyncio
 import os
 
-# Target the HTML canvas
-os.environ["SDL_WINDOWID"] = "canvas"
-
 # Initialize Pygame
 pygame.init()
 try:
+    # Set frequency to 44100 for better browser compatibility
+    pygame.mixer.pre_init(44100, -16, 2, 1024)
     pygame.mixer.init()
 except:
     print("Audio not supported")
