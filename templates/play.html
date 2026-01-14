@@ -45,7 +45,9 @@
         BASE_URL = js.window.location.origin + f"/static/games/{GAME_ID}"
         
         async def fetch_and_save_file(filename):
-            url = f"{BASE_URL}/{filename}"
+            # Encode URL to handle spaces and Cyrillic characters
+            encoded_filename = js.encodeURI(filename)
+            url = f"{BASE_URL}/{encoded_filename}"
             set_status(f"Downloading {filename}...")
             try:
                 response = await pyfetch(url)
