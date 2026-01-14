@@ -21,9 +21,8 @@ LASER_SPEED = 5
 ENEMY_SPEED = 1
 ENEMY_DISTANCE = 50
 
-# Set up the screen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption(SCREEN_TITLE)
+# Global screen variable (will be initialized in main)
+screen = None
 
 class TieFighter(pygame.sprite.Sprite):
     def __init__(self):
@@ -98,6 +97,11 @@ class Millenium_falcon(pygame.sprite.Sprite):
         if self.rect.right > SCREEN_WIDTH: self.rect.right = SCREEN_WIDTH
 
 async def main():
+    global screen
+    # Set up the screen inside async main
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption(SCREEN_TITLE)
+    
     # Load Backgrounds
     print("Loading assets inside main...")
     try:

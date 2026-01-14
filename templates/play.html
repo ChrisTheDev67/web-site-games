@@ -45,10 +45,11 @@
         BASE_URL = js.window.location.origin + f"/static/games/{GAME_ID}"
         
         async def fetch_and_save_file(filename):
-            # Encode URL to handle spaces and Cyrillic characters
-            encoded_filename = js.encodeURI(filename)
+            # Encode each part of the path separately if it had subdirectories
+            # but here we mostly have files in the root of the game folder.
+            encoded_filename = js.encodeURIComponent(filename).replace("%2F", "/")
             url = f"{BASE_URL}/{encoded_filename}"
-            set_status(f"Downloading {filename}...")
+            print(f"Fetching: {url}")
             try:
                 response = await pyfetch(url)
                 if response.status == 200:
@@ -60,6 +61,7 @@
                         f.write(content)
                 else:
                     set_status(f"Error {response.status}: {filename}")
+                    print(f"Failed URL: {url}")
             except Exception as e:
                 set_status(f"Load Error {filename}: {e}")
 
