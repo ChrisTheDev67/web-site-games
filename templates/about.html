@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="about-hero">
+    <div class="about-content">
+        <h1>About Me</h1>
+        <div class="bio-card">
+            <p class="photo-label">this is me: </p>
+            <div class="profile-photo-container">
+                <img src="{{ url_for('static', filename='img/chris.jpg') }}" alt="Chris" class="profile-photo">
+            </div>
+            <p class="greeting">Hello! 👋</p>
+            <p>
+                I am <strong>Chris</strong>, I'm 10 years old, and I created this site with my dad!
+                It will be for playing games at home and at school :)
+            </p>
+            <p>
+                <strong>So tell your friends to join and play these games!</strong> 😊
+            </p>
+            <p>
+                More about me: I live in the <strong>USA</strong> and I love <strong>VR games</strong> and other games.
+                I go to <strong>5th grade</strong>.
+            </p>
+            <p>
+                My dad who helped me is <strong>38 years old</strong>. His name is <strong>Vitalik</strong> and he is
+                very smart and works so much! 💪
+            </p>
+            <div class="emphasis-section">
+                <p class="big-emphasis">AND I AM MAKING ALL THE GAMES BY MYSELF</p>
+            </div>
+            <div class="cta-section">
+                <a href="{{ url_for('games') }}" class="cta-button">Check Out My Games →</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

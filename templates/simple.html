@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Test</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <!-- JS -->
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+</head>
+
+<body>
+    <h1>PyScript Test Page</h1>
+    <div id="status">Waiting...</div>
+
+    <script type="py">
+        import js
+        js.document.getElementById("status").innerText = "Success! PyScript is running."
+        print("Hello from Python")
+    </script>
+</body>
+
+</html>

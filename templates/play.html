@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block head %}
+<!-- CSS -->
+<link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+<!-- JS -->
+<script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="game-header">
+        <h2>Playing: {{ game_id }}</h2>
+        <a href="{{ url_for('games') }}" class="back-btn">← Back to Gallery</a>
+    </div>
+
+    <div class="game-viewport">
+        <!-- Allows PyScript to output here -->
+        <div id="terminal" class="terminal-output"></div>
+        <!-- Canvas for graphical games -->
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+
+    <div id="game-status" style="color: white; text-align: center; margin-bottom: 10px; font-family: monospace;">
+        Initializing...</div>
+
+    <!-- Game Loader Script -->
+    <!-- trying py-game type for auto-bootstrapping -->
+    <!-- Game Loader Script -->
+    <script type="py-game" terminal>
+        # Reverting to "py" because I cannot rely on py-game tag without more research.
+        # But I will try to use the Pyodide registry one last time with correct casing? "pygame-ce"?
+        
+        import asyncio
+        import os
+        import js
+        from pyodide.http import pyfetch
+        import micropip
+
+        def set_status(msg):
+            print(msg)
+            js.document.getElementById("game-status").innerText = msg
+
+        # Data passed from Jinja
+        GAME_ID = "{{ game_id }}"
+        FILES = {{ files_list | tojson }}
+        BASE_URL = f"/static/games/{GAME_ID}"
+        
+        async def fetch_and_save_file(filename):
+            url = f"{BASE_URL}/{filename}"
+            set_status(f"Downloading {filename}...")
+            try:
+                response = await pyfetch(url)
+                if response.status == 200:
+                    content = await response.bytes()
+                    dir_name = os.path.dirname(filename)
+                    if dir_name:
+                        os.makedirs(dir_name, exist_ok=True)
+                    with open(filename, 'wb') as f:
+                        f.write(content)
+                else:
+                    set_status(f"Error downloading {filename}: Status {response.status}")
+            except Exception as e:
+                set_status(f"Exception downloading {filename}: {e}")
+
+        async def start_game():
+            try:
+                set_status("--- BOOTSTRAP ---")
+                
+                # Try to install pygame-ce from PyPI since we are on latest Pyodide.
+                # If it fails, I will catch it.
+                try:
+                    set_status("Installing pygame-ce...")
+                    await micropip.install("pygame-ce")
+                except Exception as e:
+                    set_status(f"pygame-ce failed: {e}")
+                    set_status("Trying pygame (standard)...")
+                    await micropip.install("pygame")
+
+                set_status("Libraries installed. Starting Loader...")
+                
+                # 2. Download all files
+                tasks = [fetch_and_save_file(f) for f in FILES]
+                await asyncio.gather(*tasks)
+                set_status("--- ALL ASSETS DOWNLOADED ---")
+                
+                # 3. Check for main.py
+                if os.path.exists("main.py"):
+                    set_status("Found main.py, executing...")
+                    
+                    with open("main.py", "r") as f:
+                        code = f.read()
+                        
+                    globs = globals().copy()
+                    globs['__name__'] = '__main__'
+                    exec(code, globs)
+                    set_status("Game Running")
+                else:
+                    set_status("CRITICAL ERROR: main.py not found!")
+                    js.alert("Error: main.py not found in game files.")
+            except Exception as e:
+                set_status(f"Global Error: {e}")
+                import traceback
+                traceback.print_exc()
+
+        asyncio.ensure_future(start_game())
+    </script>
+
+    set_status("Libraries installed. Starting Loader...")
+
+    set_status("Libraries installed. Starting Loader...")
+
+    # 2. Download all files
+    tasks = [fetch_and_save_file(f) for f in FILES]
+    await asyncio.gather(*tasks)
+    set_status("--- ALL ASSETS DOWNLOADED ---")
+
+    # 3. Check for main.py
+    if os.path.exists("main.py"):
+    set_status("Found main.py, executing...")
+
+    with open("main.py", "r") as f:
+    code = f.read()
+
+    globs = globals().copy()
+    globs['__name__'] = '__main__'
+    exec(code, globs)
+    set_status("Game Running")
+    else:
+    set_status("CRITICAL ERROR: main.py not found!")
+    js.alert("Error: main.py not found in game files.")
+    except Exception as e:
+    set_status(f"Global Error: {e}")
+    import traceback
+    traceback.print_exc()
+
+    asyncio.ensure_future(start_game())
+    </script>
+</div>
+{% endblock %}

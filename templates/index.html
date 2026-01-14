@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="welcome-hero">
+    <div class="welcome-content">
+        <h1 class="welcome-title">Welcome to Chris's World</h1>
+        <p class="welcome-subtitle">Where you can play awesome games! 🎮</p>
+
+        <div class="welcome-buttons">
+            <a href="{{ url_for('about') }}" class="welcome-btn about-btn">
+                <span class="btn-icon">👋</span>
+                <span class="btn-text">About Me</span>
+            </a>
+            <a href="{{ url_for('games') }}" class="welcome-btn games-btn">
+                <span class="btn-icon">🎮</span>
+                <span class="btn-text">Play Games</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Floating shapes for relaxing background -->
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+    </div>
+</section>
+{% endblock %}
