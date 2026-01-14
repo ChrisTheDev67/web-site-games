@@ -25,7 +25,7 @@
         Initializing...</div>
 
     <!-- Game Loader Script -->
-    <script type="mpy" terminal>
+    <script type="py" terminal>
         import asyncio
         import os
         import js
@@ -34,12 +34,14 @@
 
         def set_status(msg):
             print(f"> {msg}")
-            js.document.getElementById("game-status").innerText = msg
+            status_el = js.document.getElementById("game-status")
+            if status_el:
+                status_el.innerText = msg
 
         # Data passed from Jinja
         GAME_ID = "{{ game_id }}"
         FILES = {{ files_list | tojson }}
-        # Use absolute path for assets on Vercel
+        # Use absolute path for assets on Vercel to avoid path resolution issues
         BASE_URL = js.window.location.origin + f"/static/games/{GAME_ID}"
         
         async def fetch_and_save_file(filename):
@@ -61,40 +63,46 @@
 
         async def start_game():
             try:
-                set_status("Initializing environment...")
+                set_status("Initializing Pyodide...")
                 
+                # Check for existing main.py to prevent re-downloads on refresh if needed
+                # (though usually fresh env per load)
+                
+                set_status("Installing libraries...")
                 try:
-                    set_status("Installing pygame-ce...")
+                    # Pygame-ce is generally the preferred version for web
                     await micropip.install("pygame-ce")
                 except Exception as e:
-                    set_status(f"pygame-ce error, trying standard...")
+                    set_status(f"pygame-ce install failed, trying fallback...")
                     await micropip.install("pygame")
 
-                set_status("Downloading game assets...")
+                set_status("Fetching game assets...")
                 
                 # Download all files
                 tasks = [fetch_and_save_file(f) for f in FILES]
                 await asyncio.gather(*tasks)
-                set_status("Assets loaded. Starting game...")
+                
+                set_status("Assets ready. Launching game...")
                 
                 if os.path.exists("main.py"):
-                    set_status("Executing main.py...")
+                    set_status("Running main.py...")
                     with open("main.py", "r") as f:
                         code = f.read()
                         
+                    # Standard way to run a script in Pyodide with its own global scope
                     globs = globals().copy()
                     globs['__name__'] = '__main__'
                     exec(code, globs)
-                    set_status("Game Running")
+                    set_status("Game is active")
                 else:
-                    set_status("Error: main.py not found!")
-                    js.alert("Main.py missing in game folder.")
+                    set_status("Critical Error: main.py missing!")
+                    js.alert("main.py was not found in the game folder.")
             except Exception as e:
-                set_status(f"Runtime Error: {e}")
+                set_status(f"Runtime Exception: {e}")
                 import traceback
                 traceback.print_exc()
 
-        # Kick off the loader
+        # Start the async loader
         asyncio.ensure_future(start_game())
     </script>
 
