@@ -25,7 +25,7 @@ class TieFighter(pygame.sprite.Sprite):
         super().__init__()
         # Load image
         try:
-            self.image = pygame.image.load("TieFighter.png").convert_alpha()
+            self.image = pygame.image.load("TieFighter.png")
             # Scale logic
             w = int(self.image.get_width() * 0.2)
             h = int(self.image.get_height() * 0.2)
@@ -47,7 +47,7 @@ class Laser(pygame.sprite.Sprite):
     def __init__(self, falcon_rect):
         super().__init__()
         try:
-            self.image = pygame.image.load("laser.png").convert_alpha()
+            self.image = pygame.image.load("laser.png")
             w = int(self.image.get_width() * 0.8)
             h = int(self.image.get_height() * 0.8)
             self.image = pygame.transform.scale(self.image, (w, h))
@@ -78,7 +78,7 @@ class Millenium_falcon(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         try:
-            self.image = pygame.image.load("falcon.png").convert_alpha()
+            self.image = pygame.image.load("falcon.png")
             w = int(self.image.get_width() * 0.3)
             h = int(self.image.get_height() * 0.3)
             self.image = pygame.transform.scale(self.image, (w, h))
@@ -118,7 +118,7 @@ async def main():
     # Load Backgrounds
     print("Loading assets inside main...")
     try:
-        bg = pygame.image.load("background.jpg").convert()
+        bg = pygame.image.load("background.jpg")
         bg = pygame.transform.scale(bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except Exception as e:
         print(f"BG Load Error: {e}")
@@ -126,14 +126,14 @@ async def main():
         bg.fill((50, 50, 50))
 
     try:
-        lose_bg = pygame.image.load("lost.jpg").convert()
+        lose_bg = pygame.image.load("lost.jpg")
         lose_bg = pygame.transform.scale(lose_bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except:
         lose_bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         lose_bg.fill((100, 0, 0))
 
     try:
-        win_bg = pygame.image.load("win.png").convert_alpha()
+        win_bg = pygame.image.load("win.png")
         win_bg = pygame.transform.scale(win_bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except:
         win_bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
