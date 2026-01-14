@@ -124,13 +124,29 @@ async def custom_site():
         pygame.draw.rect(screen,(0,255,0), ( marginx, marginy, track.pos*slot, uy(90)) )
 
     # wait until zip mount + overlayfs is complete
+    # MODIFIED: Add timeout and size-based completion detection for servers
+    # that don't provide Content-Length header (like Vercel)
+    last_pos = 0
+    stall_count = 0
+    max_stalls = 30  # 3 seconds of no progress = assume complete
+    
     while not track.ready:
         pg_bar(track.pos)
         compose()
         await asyncio.sleep(.1)
+        
+        # Check if download has stalled (no new bytes received)
+        if track.pos == last_pos and track.pos > 0:
+            stall_count += 1
+            if stall_count >= max_stalls:
+                print(f"Download stalled at {track.pos} bytes, assuming complete")
+                break
+        else:
+            stall_count = 0
+            last_pos = track.pos
 
     # fill it up in case it was cached and instant download
-    pg_bar(track.len)
+    pg_bar(track.len if track.len else track.pos)
     compose()
 
 
