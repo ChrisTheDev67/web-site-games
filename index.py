@@ -3,13 +3,13 @@ import shutil
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 
 # Initialize Flask app
-# We explicitly define folder paths because 'api/index.py' is nested
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+# Since this file is now in the root, we can use default paths
+app = Flask(__name__)
 app.secret_key = 'sdftu1428_secret_key_for_sessions'  # For session management
 
 ADMIN_PASSWORD = 'sdftu1428'  # Password for admin access
 
-GAMES_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'games')
+GAMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'games')
 
 # Ensure games directory exists
 if not os.path.exists(GAMES_DIR):
@@ -202,8 +202,11 @@ def logout():
 def test_page():
     return render_template('simple.html')
 
-# Vercel serverless entry point
+# Vercel entry point
 app.debug = True
+
+# We'll use 'index' as the name for Vercel
+app.name = 'index'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
