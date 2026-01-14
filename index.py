@@ -19,15 +19,6 @@ if not os.path.exists(GAMES_DIR):
 def home():
     return render_template('index.html')
 
-@app.route('/debug/files')
-def debug_files():
-    files = []
-    if os.path.exists(GAMES_DIR):
-        for root, dirs, filenames in os.walk(GAMES_DIR):
-            for f in filenames:
-                files.append(os.path.relpath(os.path.join(root, f), GAMES_DIR))
-    return jsonify(files)
-
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -76,13 +67,16 @@ def play(game_id):
     files_to_fetch = []
     for root, dirs, files in os.walk(game_path):
         for file in files:
-            rel_dir = os.path.relpath(root, game_path)
-            if rel_dir == '.':
-                files_to_fetch.append(file)
-            else:
-                files_to_fetch.append(os.path.join(rel_dir, file))
+            if not file.startswith('.'):
+                rel_dir = os.path.relpath(root, game_path)
+                if rel_dir == '.':
+                    files_to_fetch.append(file)
+                else:
+                    files_to_fetch.append(os.path.join(rel_dir, file))
     
-    return render_template('play.html', game_id=game_id, files_list=files_to_fetch)
+    response = Flask.make_response(app, render_template('play.html', game_id=game_id, files_list=files_to_fetch))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 @app.route('/play/<game_id>/config.json')
 def game_config(game_id):

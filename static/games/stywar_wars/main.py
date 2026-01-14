@@ -3,16 +3,13 @@ import random
 import asyncio
 import os
 
-# Initialize Pygame
-pygame.init()
-try:
-    # Set frequency to 44100 for better browser compatibility
-    pygame.mixer.pre_init(44100, -16, 2, 1024)
-    pygame.mixer.init()
-except:
-    print("Audio not supported")
-
 # Constants
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_TITLE = "PYPCIKI PROTIV ABOBYCOB"
+LASER_SPEED = 5
+ENEMY_SPEED = 1
+ENEMY_DISTANCE = 50
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "PYPCIKI PROTIV ABOBYCOB"
@@ -64,7 +61,11 @@ class Laser(pygame.sprite.Sprite):
         self.change_y = LASER_SPEED
         # Load sound
         try:
-            self.laser_sound = pygame.mixer.Sound("laser.wav")
+            # First try the default, then fallbacks
+            if os.path.exists("laser.wav"):
+                self.laser_sound = pygame.mixer.Sound("laser.wav")
+            else:
+                 self.laser_sound = None
         except:
             self.laser_sound = None
 
@@ -96,8 +97,21 @@ class Millenium_falcon(pygame.sprite.Sprite):
         if self.rect.right > SCREEN_WIDTH: self.rect.right = SCREEN_WIDTH
 
 async def main():
+    import pygame  # Import inside to ensure everything is in this scope
     global screen
-    # Set up the screen inside async main
+    
+    # Target the HTML canvas specifically for browser
+    os.environ["SDL_WINDOWID"] = "canvas"
+    
+    # Initialize Pygame inside async main
+    pygame.init()
+    try:
+        pygame.mixer.pre_init(44100, -16, 2, 1024)
+        pygame.mixer.init()
+    except Exception as e:
+        print(f"Mixer init error: {e}")
+
+    # Set up the screen
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption(SCREEN_TITLE)
     
