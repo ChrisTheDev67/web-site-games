@@ -91,59 +91,52 @@ class Millenium_falcon(pygame.sprite.Sprite):
         if self.rect.right > SCREEN_WIDTH: self.rect.right = SCREEN_WIDTH
 
 async def main():
-    import pygame  # Import inside to ensure everything is in this scope
     global screen
     
-    print("Main Task Started")
-    # Initialize Pygame inside async main
-    try:
-        print("Initializing Pygame...")
-        pygame.init()
-        print("Pygame Init Successful")
-        
-        print("Initializing Mixer...")
-        pygame.mixer.pre_init(44100, -16, 2, 1024)
-        pygame.mixer.init()
-        print("Mixer Init Successful")
-    except Exception as e:
-        print(f"Init Warning: {e}")
-
-    # Set up the screen
-    print(f"Setting Display Mode: {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
-    try:
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        print("Display Mode Set successfully")
-        pygame.display.set_caption(SCREEN_TITLE)
-    except Exception as e:
-        print(f"Display Error: {e}")
-        # Last resort fallback
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SCALED)
+    print("Game Startup Sequence Initiated")
     
+    try:
+        pygame.init()
+        print("Pygame base initialized")
+        
+        # Safe mixer setup
+        try:
+            pygame.mixer.pre_init(44100, -16, 2, 1024)
+            pygame.mixer.init()
+            print("Mixer initialized")
+        except Exception as e:
+            print(f"Mixer warning: {e}")
+
+        # Screen setup - simplest possible call
+        print(f"Opening window: {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption(SCREEN_TITLE)
+        print("Display ready")
+    except Exception as e:
+        print(f"Critical Init Error: {e}")
+        return
+
     # Load Backgrounds
-    print("Loading assets inside main...")
+    print("Loading textures...")
     try:
         bg = pygame.image.load("background.jpg")
         bg = pygame.transform.scale(bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    except Exception as e:
-        print(f"BG Load Error: {e}")
-        bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        bg.fill((50, 50, 50))
-
-    try:
+        
         lose_bg = pygame.image.load("lost.jpg")
         lose_bg = pygame.transform.scale(lose_bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    except:
-        lose_bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        lose_bg.fill((100, 0, 0))
 
-    try:
         win_bg = pygame.image.load("win.png")
         win_bg = pygame.transform.scale(win_bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    except:
-        win_bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        win_bg.fill((0, 100, 0))
+        print("Textures loaded")
+    except Exception as e:
+        print(f"Texture Error: {e}")
+        # Fallbacks
+        bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        bg.fill((30, 30, 30))
+        lose_bg = bg.copy()
+        win_bg = bg.copy()
 
-    # Sprites
+    # Sprites initialization
     all_sprites = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
     lasers = pygame.sprite.Group()
@@ -151,7 +144,6 @@ async def main():
     falcon = Millenium_falcon()
     all_sprites.add(falcon)
 
-    # Setup Enemies
     def setup_enemies():
         enemies.empty()
         for i in range(50):
@@ -163,18 +155,17 @@ async def main():
 
     setup_enemies()
     
-    # Game State
     game_active = True
     win = False
     lose = False
     
     clock = pygame.time.Clock()
-    print("Game Loop Starting")
+    print("Starting Game Loop")
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pass # Browser handle exit?
+                return
             
             if event.type == pygame.MOUSEMOTION:
                  if game_active:
@@ -190,14 +181,12 @@ async def main():
 
         if game_active:
             all_sprites.update()
-            
-            hits = pygame.sprite.groupcollide(lasers, enemies, True, True)
+            pygame.sprite.groupcollide(lasers, enemies, True, True)
             
             for enemy in enemies:
                 if enemy.rect.top > SCREEN_HEIGHT:
                     lose = True
                     game_active = False
-                    break
             
             if len(enemies) == 0:
                 win = True
@@ -214,16 +203,10 @@ async def main():
 
         pygame.display.flip()
         
-        # Asyncio sleep is critical for browser event loop
-        clock.tick(60)
+        # CRITICAL: YIELD TO BROWSER
         await asyncio.sleep(0)
+        clock.tick(60)
 
 if __name__ == '__main__':
-    print("Launching Game...")
-    try:
-        loop = asyncio.get_running_loop()
-        print("Event loop detected. Scheduling main() task.")
-        asyncio.create_task(main())
-    except RuntimeError:
-        print("No event loop. Starting new one.")
-        asyncio.run(main())
+    # Standard PyScript/Pyodide async startup
+    asyncio.ensure_future(main())

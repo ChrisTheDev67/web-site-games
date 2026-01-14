@@ -3,13 +3,13 @@ import shutil
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, make_response
 
 # Initialize Flask app
-# Explicitly set folders for Vercel compatibility
-app = Flask(__name__, static_folder='static', template_folder='templates')
+# Adjust paths for api/ subdirectory
+app = Flask(__name__, static_folder='../static', template_folder='../templates')
 app.secret_key = 'sdftu1428_secret_key_for_sessions'  # For session management
 
 ADMIN_PASSWORD = 'sdftu1428'  # Password for admin access
 
-GAMES_DIR = os.path.join(os.path.dirname(__file__), 'static', 'games')
+GAMES_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'games')
 
 # Ensure games directory exists
 if not os.path.exists(GAMES_DIR):
