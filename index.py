@@ -19,6 +19,15 @@ if not os.path.exists(GAMES_DIR):
 def home():
     return render_template('index.html')
 
+@app.route('/debug/files')
+def debug_files():
+    files = []
+    if os.path.exists(GAMES_DIR):
+        for root, dirs, filenames in os.walk(GAMES_DIR):
+            for f in filenames:
+                files.append(os.path.relpath(os.path.join(root, f), GAMES_DIR))
+    return jsonify(files)
+
 @app.route('/about')
 def about():
     return render_template('about.html')
