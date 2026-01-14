@@ -42,26 +42,11 @@ def play(game_id):
     if not os.path.exists(game_path):
         return "Game not found", 404
     
-    # Check if pygbag build exists
+    # Check if pygbag build exists - redirect directly to static file
     pygbag_index = os.path.join(game_path, 'build', 'web', 'index.html')
     if os.path.exists(pygbag_index):
-        # Serve pygbag-generated HTML directly
-        with open(pygbag_index, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        # Fix asset paths to be relative to the build directory
-        html_content = html_content.replace('apk = "stywar_wars.apk"', f'apk = "/static/games/{game_id}/build/web/stywar_wars.apk"')
-        html_content = html_content.replace('src="stywar_wars.apk"', f'src="/static/games/{game_id}/build/web/stywar_wars.apk"')
-        html_content = html_content.replace('href="favicon.png"', f'href="/static/games/{game_id}/build/web/favicon.png"')
-        
-        # Add navigation controls overlay
-        nav_overlay = '''
-        <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; gap: 10px;">
-            <a href="/games" style="background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-family: Arial; font-weight: bold;">← Back</a>
-            <button onclick="location.reload()" style="background: rgba(0,100,200,0.7); color: white; padding: 10px 20px; border-radius: 5px; border: none; font-family: Arial; font-weight: bold; cursor: pointer;">🔄 Restart</button>
-        </div>
-        '''
-        html_content = html_content.replace('</body>', nav_overlay + '</body>')
-        return html_content
+        # Redirect to the static file served directly by Vercel
+        return redirect(f'/static/games/{game_id}/build/web/index.html')
     
     # Fallback to custom loader
     files_to_fetch = []
