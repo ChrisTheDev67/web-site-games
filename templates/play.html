@@ -25,7 +25,7 @@
         Initializing...</div>
 
     <!-- Game Loader Script -->
-    <script type="py" terminal>
+    <script type="py" config='{"packages": ["micropip", "pygame-ce"]}' terminal>
         import asyncio
         import os
         import js
@@ -63,18 +63,10 @@
 
         async def start_game():
             try:
-                set_status("Initializing Pyodide...")
+                set_status("Preparing environment...")
                 
-                # Check for existing main.py to prevent re-downloads on refresh if needed
-                # (though usually fresh env per load)
-                
-                set_status("Installing libraries...")
-                try:
-                    # Pygame-ce is generally the preferred version for web
-                    await micropip.install("pygame-ce")
-                except Exception as e:
-                    set_status(f"pygame-ce install failed, trying fallback...")
-                    await micropip.install("pygame")
+                # Packages are now handled by the <script> config attribute
+                # so we can jump straight to asset downloading
 
                 set_status("Fetching game assets...")
                 
