@@ -17,4 +17,8 @@ Thumbs.db
 # Build
 dist/
 build/
+# But allow pygbag game builds
+!static/games/*/build/
+!static/games/*/build/web/
+!static/games/*/build/web/**
 *.egg-info/
