@@ -49,8 +49,9 @@ def play(game_id):
     # Check if pygbag build exists - redirect directly to static file
     pygbag_index = os.path.join(game_path, 'build', 'web', 'index.html')
     if os.path.exists(pygbag_index):
-        # Redirect to the static file served directly by Vercel
-        return redirect(f'/static/games/{game_id}/build/web/index.html')
+        # Redirect to the static file served directly by Vercel with cache busting
+        import time
+        return redirect(f'/static/games/{game_id}/build/web/index.html?v={int(time.time())}')
     
     # Fallback to custom loader
     files_to_fetch = []
