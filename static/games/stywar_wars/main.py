@@ -95,6 +95,10 @@ async def main():
     
     print("Game Startup Sequence Initiated")
     
+    # CRITICAL: Target the HTML canvas element BEFORE pygame.init()
+    os.environ['SDL_WINDOWID'] = 'canvas'
+    os.environ['SDL_VIDEODRIVER'] = 'dummy'  # Use dummy driver first
+    
     try:
         pygame.init()
         print("Pygame base initialized")
@@ -107,13 +111,18 @@ async def main():
         except Exception as e:
             print(f"Mixer warning: {e}")
 
-        # Screen setup - simplest possible call
+        # Yield to browser event loop before creating display
+        await asyncio.sleep(0.1)
+        
+        # Screen setup
         print(f"Opening window: {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(SCREEN_TITLE)
         print("Display ready")
     except Exception as e:
         print(f"Critical Init Error: {e}")
+        import traceback
+        traceback.print_exc()
         return
 
     # Load Backgrounds
