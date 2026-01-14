@@ -1,6 +1,6 @@
 import os
 import shutil
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, make_response
 
 # Initialize Flask app
 # Since this file is now in the root, we can use default paths
@@ -74,7 +74,7 @@ def play(game_id):
                 else:
                     files_to_fetch.append(os.path.join(rel_dir, file))
     
-    response = Flask.make_response(app, render_template('play.html', game_id=game_id, files_list=files_to_fetch))
+    response = make_response(render_template('play.html', game_id=game_id, files_list=files_to_fetch))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 
